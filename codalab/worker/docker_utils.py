@@ -167,24 +167,35 @@ def start_bundle_container(
 
     # Name the container with the UUID for readability
     container_name = 'codalab_run_%s' % uuid
-    container = client.containers.run(
-        image=docker_image,
-        command=docker_command,
-        name=container_name,
-        network=network,
-        mem_limit=memory_bytes,
-        shm_size='1G',
-        cpuset_cpus=cpuset_str,
-        environment=environment,
-        working_dir=working_dir,
-        entrypoint=entrypoint,
-        volumes=volumes,
-        user=user,
-        detach=detach,
-        runtime=runtime,
-        tty=tty,
-        stdin_open=tty,
-    )
+    # Check if there is an existing container on the host
+    containers = client.containers.list(filters={"name": container_name})
+    if len(containers) == 1:
+        container = containers[0]
+        container.start()
+    elif len(containers) > 1:
+        logger.info(
+            "More than one container have the same container name found "
+            "locally when creating the container for bundle {}".format(uuid)
+        )
+    else:
+        container = client.containers.run(
+            image=docker_image,
+            command=docker_command,
+            name=container_name,
+            network=network,
+            mem_limit=memory_bytes,
+            shm_size='1G',
+            cpuset_cpus=cpuset_str,
+            environment=environment,
+            working_dir=working_dir,
+            entrypoint=entrypoint,
+            volumes=volumes,
+            user=user,
+            detach=detach,
+            runtime=runtime,
+            tty=tty,
+            stdin_open=tty,
+        )
     logger.debug('Started Docker container for UUID %s, container ID %s,', uuid, container.id)
     return container
 
