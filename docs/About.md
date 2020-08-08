@@ -13,11 +13,12 @@ provided by Microsoft Azure.
 ## Current Developers
 
 - Percy Liang
-- Jane Ge
 - Ashwin Ramaswami
 - Levi Lian
 - Yipeng He
 - Tony Lee
+- Yibo Liu
+- Michael Du
 
 ## Former Developers
 
@@ -37,3 +38,4 @@ provided by Microsoft Azure.
 - Dennis Jeong
 - Nikhil Bhattasali
 - Hao Wu
+- Jane Ge
