@@ -8,9 +8,8 @@ import http.client
 import sys
 import threading
 import time
-import urllib.request, urllib.parse, urllib.error
-import re
 
+from urllib import request, parse
 from bottle import abort, request, HTTPResponse, redirect, app
 from oauthlib.common import to_unicode
 
@@ -169,7 +168,7 @@ def redirect_with_query(redirect_uri, params):
     """Return a Bottle redirect to the given target URI with query parameters
     encoded from the params dict.
     """
-    return redirect(redirect_uri + '?' + urllib.parse.urlencode(params))
+    return redirect(redirect_uri + '?' + parse.urlencode(params))
 
 
 """

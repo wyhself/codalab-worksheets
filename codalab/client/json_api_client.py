@@ -2,8 +2,9 @@ import http.client
 import socket
 import sys
 import six
-import urllib.request, urllib.parse, urllib.error
 
+
+from urllib import parse, error
 from codalab.common import http_error_to_exception, precondition, ensure_str, UsageError
 from codalab.worker.rest_client import RestClient, RestClientException
 from codalab.worker.download_util import BundleTarget
@@ -14,7 +15,7 @@ def wrap_exception(message):
         def wrapper(*args, **kwargs):
             try:
                 return f(*args, **kwargs)
-            except urllib.error.HTTPError as e:
+            except error.HTTPError as e:
                 # Translate known errors to the standard CodaLab errors
                 error_body = ensure_str(e.read())
                 exc = http_error_to_exception(e.code, error_body)
@@ -43,7 +44,7 @@ def wrap_exception(message):
                     ),
                     sys.exc_info()[2],
                 )
-            except (urllib.error.URLError, http.client.HTTPException, socket.error) as e:
+            except (error.URLError, http.client.HTTPException, socket.error) as e:
                 six.reraise(
                     JsonApiException,
                     JsonApiException(message.format(*args, **kwargs) + ': ' + str(e), False),
@@ -289,7 +290,7 @@ class JsonApiClient(RestClient):
             for key, relationship in obj_data.get('relationships', {}).items():
                 linkage = relationship['data']
                 if isinstance(linkage, list):
-                    obj[key] = [unpack_linkage(l) for l in linkage]
+                    obj[key] = [unpack_linkage(link) for link in linkage]
                 else:
                     obj[key] = unpack_linkage(linkage)
             return obj
@@ -592,7 +593,7 @@ class JsonApiClient(RestClient):
         """
         request_path = '/bundles/%s/contents/info/%s' % (
             target.bundle_uuid,
-            urllib.parse.quote(target.subpath),
+            parse.quote(target.subpath),
         )
         response = self._make_request('GET', request_path, query_params={'depth': depth})
         # Deserialize the target. See /rest/bundles/_fetch_contents_info for serialization side
@@ -614,7 +615,7 @@ class JsonApiClient(RestClient):
         """
         request_path = '/bundles/%s/contents/blob/%s' % (
             target.bundle_uuid,
-            urllib.parse.quote(target.subpath),
+            parse.quote(target.subpath),
         )
         headers = {'Accept-Encoding': 'gzip'}
         if range_ is not None:

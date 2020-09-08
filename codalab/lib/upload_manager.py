@@ -2,7 +2,6 @@ import re
 import os
 import shutil
 
-from codalab.common import UsageError
 from codalab.lib import crypt_util, file_util, path_util, zip_util
 
 
@@ -14,7 +13,7 @@ class UploadManager(object):
 
     def __init__(self, bundle_model, bundle_store):
         # exclude these patterns by default
-        DEFAULT_EXCLUDE_PATTERNS = ['.DS_Store', '__MACOSX', '^\._.*']
+        DEFAULT_EXCLUDE_PATTERNS = ['.DS_Store', '__MACOSX', '^\\._.*']
         self._bundle_model = bundle_model
         self._bundle_store = bundle_store
         self._default_exclude_patterns = DEFAULT_EXCLUDE_PATTERNS
@@ -116,7 +115,7 @@ class UploadManager(object):
 
             if len(sources) == 1:
                 self._simplify_directory(bundle_path)
-        except:
+        except OSError:
             if os.path.exists(bundle_path):
                 path_util.remove(bundle_path)
             raise

@@ -5,8 +5,9 @@ import json
 import socket
 import threading
 import time
-import urllib.request, urllib.parse, urllib.error
 
+
+from urllib import request, parse, error
 from .rest_client import RestClient, RestClientException
 from .file_util import tar_gzip_directory
 from codalab.common import ensure_str, URLOPEN_TIMEOUT_SECONDS
@@ -21,7 +22,7 @@ def wrap_exception(message):
                 raise
             except RestClientException as e:
                 raise BundleServiceException(message + ': ' + str(e), e.client_error)
-            except urllib.error.HTTPError as e:
+            except error.HTTPError as e:
                 try:
                     # Ensure the type of urllib.error.HTTPError response to be string
                     client_error = ensure_str(e.read())
@@ -33,11 +34,11 @@ def wrap_exception(message):
                     else:
                         raise BundleServiceException(
                             message + ': ' + http.client.responses[e.code] + ' - ' + client_error,
-                            e.code >= 400 and e.code < 500,
+                            400 <= e.code < 500,
                         )
                 except json.decoder.JSONDecodeError as e:
                     raise BundleServiceException(message + ': ' + str(e), False)
-            except (urllib.error.URLError, http.client.HTTPException, socket.error) as e:
+            except (error.URLError, http.client.HTTPException, socket.error) as e:
                 raise BundleServiceException(message + ': ' + str(e), False)
 
         return wrapper
@@ -97,12 +98,12 @@ class BundleServiceClient(RestClient):
             'Content-Type': 'application/x-www-form-urlencoded',
             'X-Requested-With': 'XMLHttpRequest',
         }
-        request = urllib.request.Request(
+        the_request = request.Request(
             self._base_url + '/oauth2/token',
-            data=urllib.parse.urlencode(request_data).encode('utf-8'),
+            data=parse.urlencode(request_data).encode('utf-8'),
             headers=headers,
         )
-        with closing(urllib.request.urlopen(request, timeout=URLOPEN_TIMEOUT_SECONDS)) as response:
+        with closing(request.urlopen(the_request, timeout=URLOPEN_TIMEOUT_SECONDS)) as response:
             response_data = response.read().decode()
         try:
             token = json.loads(response_data)
@@ -116,7 +117,7 @@ class BundleServiceClient(RestClient):
         self._token_expiration_time = time.time() + token['expires_in']
 
     def _worker_url_prefix(self, worker_id):
-        return '/workers/' + urllib.parse.quote(worker_id)
+        return '/workers/' + parse.quote(worker_id)
 
     @wrap_exception('Unable to check in with bundle service')
     def checkin(self, worker_id, request_data):

@@ -156,7 +156,8 @@ class MultiDiskBundleStore(object):
             Prevent foot-shooting
             """
             print(
-                "Error, cannot remove last partition. If you really wish to delete CodaLab, please run the following command:",
+                "Error, cannot remove last partition. "
+                "If you really wish to delete CodaLab, please run the following command:",
                 file=sys.stderr,
             )
             print("      rm -rf %s" % self.codalab_home, file=sys.stderr)
@@ -167,7 +168,7 @@ class MultiDiskBundleStore(object):
         try:
             print(partition_abs_path)
             path_util.check_isvalid(partition_abs_path, 'rm-partition')
-        except:
+        except OSError:
             print(
                 "Partition with name '%s' does not exist. Run `cl ls-partitions` to see a list of mounted partitions."
                 % partition,
@@ -223,9 +224,10 @@ class MultiDiskBundleStore(object):
                directory. If they are then delete the dependencies.
             5. For bundle <UUID> marked READY or FAILED, <UUID>.cid or <UUID>.status, or the <UUID>(-internal).sh files
                should not exist.
-        |force|: Perform any destructive operations on the bundle store the health check determines are necessary. False by default
-        |compute_data_hash|: If True, compute the data_hash for every single bundle ourselves and see if it's consistent with what's in
-                             the database. False by default.
+        |force|: Perform any destructive operations on the bundle store the health check determines are necessary.
+                 False by default
+        |compute_data_hash|: If True, compute the data_hash for every single bundle ourselves and see if it's
+                             consistent with what's in the database. False by default.
         """
         UUID_REGEX = re.compile(r'^(%s)' % spec_util.UUID_STR)
 
@@ -239,7 +241,7 @@ class MultiDiskBundleStore(object):
             fname = os.path.basename(path)
             try:
                 return UUID_REGEX.match(fname).groups()[0]
-            except:
+            except FileNotFoundError:
                 return None
 
         def _is_bundle(path):
@@ -258,7 +260,7 @@ class MultiDiskBundleStore(object):
                 uuid = _get_uuid(bundle_path)
                 # Screen for bundles stored on disk that are no longer in the database
                 bundle = db_bundle_by_uuid.get(uuid, None)
-                if bundle == None:
+                if bundle is None:
                     to_delete += [bundle_path]
                     continue
                 # Delete dependencies stored inside of READY or FAILED bundles
@@ -277,7 +279,7 @@ class MultiDiskBundleStore(object):
             for path in other_paths:
                 uuid = _get_uuid(path)
                 bundle = db_bundle_by_uuid.get(uuid, None)
-                if bundle == None:
+                if bundle is None:
                     to_delete += [path]
                     continue
                 ends_with_ext = (
@@ -329,16 +331,16 @@ class MultiDiskBundleStore(object):
             for bundle_path in bundle_paths:
                 uuid = _get_uuid(bundle_path)
                 bundle = db_bundle_by_uuid.get(uuid, None)
-                if bundle == None:
+                if bundle is None:
                     continue
-                if compute_data_hash or bundle.data_hash == None:
+                if compute_data_hash or bundle.data_hash is None:
                     dirs_and_files = (
                         path_util.recursive_ls(bundle_path)
                         if os.path.isdir(bundle_path)
                         else ([], [bundle_path])
                     )
                     data_hash = '0x%s' % path_util.hash_directory(bundle_path, dirs_and_files)
-                    if bundle.data_hash == None:
+                    if bundle.data_hash is None:
                         data_hash_recomputed += 1
                         print(
                             'Giving bundle %s data_hash %s' % (bundle_path, data_hash),

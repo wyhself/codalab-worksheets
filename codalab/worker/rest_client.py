@@ -2,8 +2,9 @@ from contextlib import closing
 from io import StringIO
 import http.client
 import json
-import urllib.request, urllib.parse, urllib.error
-from typing import Dict, Any
+
+from urllib import request, parse, error
+from typing import Dict
 
 from .file_util import un_gzip_stream
 from codalab.common import URLOPEN_TIMEOUT_SECONDS
@@ -79,17 +80,17 @@ class RestClient(object):
 
         # Set path
         if query_params is not None:
-            path = path + '?' + urllib.parse.urlencode(query_params)
+            path = path + '?' + parse.urlencode(query_params)
         request_url = self._base_url + path
 
         # Make the actual request
-        request = urllib.request.Request(request_url, data=data, headers=headers)
-        request.get_method = lambda: method
+        the_request = request.Request(request_url, data=data, headers=headers)
+        the_request.get_method = lambda: method
         if return_response:
             # Return a file-like object containing the contents of the response
             # body, transparently decoding gzip streams if indicated by the
             # Content-Encoding header.
-            response = urllib.request.urlopen(request, timeout=URLOPEN_TIMEOUT_SECONDS)
+            response = request.urlopen(the_request, timeout=URLOPEN_TIMEOUT_SECONDS)
             encoding = response.headers.get('Content-Encoding')
             if not encoding or encoding == 'identity':
                 return response
@@ -97,7 +98,7 @@ class RestClient(object):
                 return un_gzip_stream(response)
             else:
                 raise RestClientException('Unsupported Content-Encoding: ' + encoding, False)
-        with closing(urllib.request.urlopen(request, timeout=URLOPEN_TIMEOUT_SECONDS)) as response:
+        with closing(request.urlopen(the_request, timeout=URLOPEN_TIMEOUT_SECONDS)) as response:
             # If the response is a JSON document, as indicated by the
             # Content-Type header, try to deserialize it and return the result.
             # Otherwise, just ignore the response body and return None.
@@ -121,8 +122,8 @@ class RestClient(object):
         """
         CHUNK_SIZE = 16 * 1024
         # Start the request.
-        parsed_base_url = urllib.parse.urlparse(self._base_url)
-        path = url + '?' + urllib.parse.urlencode(query_params)
+        parsed_base_url = parse.urlparse(self._base_url)
+        path = url + '?' + parse.urlencode(query_params)
         if parsed_base_url.scheme == 'http':
             conn = http.client.HTTPConnection(parsed_base_url.netloc)
         else:
@@ -159,7 +160,7 @@ class RestClient(object):
             response = conn.getresponse()
             if response.status != 200:
                 # Low-level httplib module doesn't throw HTTPError
-                raise urllib.error.HTTPError(
+                raise error.HTTPError(
                     self._base_url + path,
                     response.status,
                     response.reason,

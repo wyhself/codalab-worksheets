@@ -6,6 +6,7 @@ import threading
 import traceback
 import time
 import shutil
+from typing import Dict
 
 from codalab.lib.formatting import size_str
 from codalab.worker.file_util import remove_path, un_tar_directory
@@ -253,7 +254,8 @@ class DependencyManager(StateTransitioner, BaseDependencyManager):
                         )[0]
                     else:
                         logger.info(
-                            'Dependency quota full but there are only downloading dependencies, not cleaning up until downloads are over'
+                            'Dependency quota full but there are only downloading dependencies, '
+                            'not cleaning up until downloads are over'
                         )
                         self._release_all_locks()
                         break

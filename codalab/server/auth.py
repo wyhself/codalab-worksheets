@@ -1,10 +1,9 @@
-'''
+"""
 AuthHandler encapsulates the logic to authenticate users on the server-side.
-'''
+"""
 import base64
 import json
-import threading
-import urllib.request, urllib.parse, urllib.error
+from urllib import request, parse, error
 from codalab.common import URLOPEN_TIMEOUT_SECONDS
 
 
@@ -19,11 +18,13 @@ class RestOAuthHandler(object):
     other user records from the local database.
     """
 
-    def __init__(self, address, extra_headers={}):
+    def __init__(self, address, extra_headers=None):
         """
         address: the address of the server
         model: BundleModel instance
         """
+        if extra_headers is None:
+            extra_headers = {}
         self._address = address
         self._extra_headers = extra_headers
 
@@ -53,16 +54,16 @@ class RestOAuthHandler(object):
             'X-Requested-With': 'XMLHttpRequest',
         }
         headers.update(self._extra_headers)
-        request = urllib.request.Request(
+        the_request = request.Request(
             self._address + '/rest/oauth2/token',
             headers=headers,
-            data=urllib.parse.urlencode(data).encode('utf-8'),
+            data=parse.urlencode(data).encode('utf-8'),
         )
         try:
-            response = urllib.request.urlopen(request, timeout=URLOPEN_TIMEOUT_SECONDS)
+            response = request.urlopen(the_request, timeout=URLOPEN_TIMEOUT_SECONDS)
             result = json.loads(response.read().decode())
             return result
-        except urllib.error.HTTPError as e:
+        except error.HTTPError as e:
             if e.code == 401:
                 return None
             raise

@@ -26,11 +26,16 @@ def cprofile(sort_args=['cumulative'], print_args=[10]):
         List reduced from 255 to 20 due to restriction <20>
 
         ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-             1    0.000    0.000    0.024    0.024 /opt/codalab-worksheets/codalab/server/bundle_manager.py:96(_stage_bundles)
-             2    0.000    0.000    0.024    0.012 /opt/codalab-worksheets/codalab/model/bundle_model.py:677(batch_get_bundles)
-             2    0.000    0.000    0.013    0.006 /usr/local/lib/python3.6/dist-packages/sqlalchemy/engine/base.py:1974(execute)
-             2    0.000    0.000    0.012    0.006 /usr/local/lib/python3.6/dist-packages/sqlalchemy/engine/base.py:846(execute)
-             2    0.000    0.000    0.012    0.006 /usr/local/lib/python3.6/dist-packages/sqlalchemy/sql/elements.py:322(_execute_on_connection)
+             1    0.000    0.000    0.024    0.024 /opt/codalab-worksheets/codalab/server/bundle_manager.py
+             :96(_stage_bundles)
+             2    0.000    0.000    0.024    0.012 /opt/codalab-worksheets/codalab/model/bundle_model.py
+             :677(batch_get_bundles)
+             2    0.000    0.000    0.013    0.006 /usr/local/lib/python3.6/dist-packages/sqlalchemy/engine/base.py
+             :1974(execute)
+             2    0.000    0.000    0.012    0.006 /usr/local/lib/python3.6/dist-packages/sqlalchemy/engine/base.py
+             :846(execute)
+             2    0.000    0.000    0.012    0.006 /usr/local/lib/python3.6/dist-packages/sqlalchemy/sql/elements.py
+             :322(_execute_on_connection)
              ...
     :param sort_args: a list of string that is used to sort the output, e.g. 'cumulative', 'pcalls', 'totime'
     :param print_args: a list of arguments (mixed type, e.g. string, integer, decimal fraction) used to

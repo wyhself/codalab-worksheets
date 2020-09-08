@@ -56,7 +56,7 @@ from codalab.worker.bundle_state import State
 
 logger = logging.getLogger(__name__)
 
-SEARCH_KEYWORD_REGEX = re.compile('^([\.\w/]*)=(.*)$')
+SEARCH_KEYWORD_REGEX = re.compile('^([.\\w/]*)=(.*)$')
 SEARCH_RESULTS_LIMIT = 10
 
 
@@ -332,8 +332,8 @@ class BundleModel(object):
             # Get children of all nodes in frontier
             result = self.get_children_uuids(frontier)
             new_frontier = []
-            for l in result.values():
-                for uuid in l:
+            for value in result.values():
+                for uuid in value:
                     if uuid in visited:
                         continue
                     new_frontier.append(uuid)
@@ -848,7 +848,7 @@ class BundleModel(object):
             # Check if the designated worker is going to be terminated soon
             row = connection.execute(
                 cl_worker.select().where(
-                    and_(cl_worker.c.worker_id == worker_id, cl_worker.c.is_terminating == False)
+                    and_(cl_worker.c.worker_id == worker_id, not cl_worker.c.is_terminating)
                 )
             ).fetchone()
             # If the worker is going to be terminated soon, stop starting bundle on this worker
@@ -1563,7 +1563,7 @@ class BundleModel(object):
                     or_(
                         cl_worksheet_item.c.sort_key > after_sort_key,
                         and_(
-                            cl_worksheet_item.c.sort_key == None,
+                            cl_worksheet_item.c.sort_key is None,
                             cl_worksheet_item.c.id > after_sort_key,
                         ),
                     ),
@@ -2114,7 +2114,8 @@ class BundleModel(object):
         |query_info| specifies the user_id of the user that you are querying about.
         Example: query_info = {
             user_id: 2,   // get the chats sent by and received by the user with user_id 2
-            limit: 20,   // get the most recent 20 chats related to this user. This is optional, as by default it will get all the chats.
+            limit: 20,   // get the most recent 20 chats related to this user.
+            This is optional, as by default it will get all the chats.
         }
         Return a list of chats that the user have had given the user_id
         """

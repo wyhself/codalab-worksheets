@@ -1,8 +1,7 @@
-'''
+"""
 Defines ORM classes for groups and permissions.
-'''
-from codalab.model.orm_object import ORMObject
-from codalab.common import NotFoundError, precondition, UsageError, PermissionError, IntegrityError
+"""
+from codalab.common import NotFoundError, UsageError, PermissionError, IntegrityError
 from codalab.lib import spec_util
 from codalab.model.tables import (
     GROUP_OBJECT_PERMISSION_ALL,
@@ -40,7 +39,7 @@ def unique_group(model, group_spec, user_id):
             spec_filters, {'owner_id': user_id, 'user_defined': True}, {'user_id': user_id}
         )
 
-    if user_id == None:
+    if user_id is None:
         search = search_all
     else:
         search = search_user
@@ -85,7 +84,12 @@ def _check_permissions(model, table, user, object_uuids, owner_ids, need_permiss
     have_permissions = model.get_user_permissions(
         table, user.unique_id if user else None, object_uuids, owner_ids
     )
-    # print '_check_permissions %s %s, have %s, need %s' % (user, object_uuids, map(permission_str, have_permissions.values()), permission_str(need_permission))
+    # print
+    # '_check_permissions %s %s, have %s, need %s' %
+    # (user, object_uuids,
+    # map(permission_str,
+    # have_permissions.values()),
+    # permission_str(need_permission))
     if min(have_permissions.values()) >= need_permission:
         return
     if user:
